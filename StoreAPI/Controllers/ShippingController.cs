@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StoreAPI.DTOs;
-using StoreAPI.Helpers;
-using StoreAPI.Services;
 using StoreAPI.Services.Interfaces;
 
 namespace StoreAPI.Controllers
@@ -12,38 +10,24 @@ namespace StoreAPI.Controllers
     [Authorize]
     public class ShippingController : ControllerBase
     {
-        private readonly IShippingService _shippingService;
+        private readonly IShippingService _shipping;
 
-        public ShippingController(IShippingService shippingService)
+        public ShippingController(IShippingService shipping)
         {
-            _shippingService = shippingService;
+            _shipping = shipping;
         }
 
-        // ======================================================
-        // Helper: Safely extract user id from JWT
-        // ======================================================
-        private int GetUserId()
-        {
-            var idClaim = User.FindFirst("id")?.Value;
-
-            if (string.IsNullOrEmpty(idClaim))
-                throw new Exception("التوكن لا يحتوي على userId.");
-
-            if (!int.TryParse(idClaim, out int userId))
-                throw new Exception("قيمة userId في التوكن غير صالحة.");
-
-            return userId;
-        }
-
-        // ======================================================
-        // Get all shipments for a specific order
-        // ======================================================
+        // جلب شحنات الطلب للمستخدم
         [HttpGet("order/{orderId}")]
-        public async Task<ActionResult<ApiResponse<List<ShipmentDTO>>>> GetOrderShipments(int orderId)
+        public async Task<IActionResult> GetOrderShipments(int orderId)
         {
-            int userId = GetUserId();
+            var id = User.FindFirst("id")?.Value;
 
-            var result = await _shippingService.GetOrderShipmentsAsync(userId, orderId);
+            if (!int.TryParse(id, out int userId))
+                return Unauthorized("Invalid token.");
+
+            var result = await _shipping.GetOrderShipmentsAsync(userId, orderId);
+
             return Ok(result);
         }
     }

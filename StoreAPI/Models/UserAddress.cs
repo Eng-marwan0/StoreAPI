@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Collections.Generic;
 
 namespace StoreAPI.Models
 {
@@ -12,46 +12,47 @@ namespace StoreAPI.Models
 
         public int UserId { get; set; }
 
-        // ===========================
-        // بيانات المستخدم
-        // ===========================
+        // ===== بيانات الشخص =====
         [Required]
-        public string FullName { get; set; }
-
-        [Required]
-        public string Phone { get; set; }
-
-        // ===========================
-        // بيانات الموقع
-        // ===========================
-        [Required]
-        public string City { get; set; }
+        [MaxLength(150)]
+        public string FullName { get; set; } = null!;
 
         [Required]
-        public string Area { get; set; }       // كرادة - منصورية - زيونة...
+        [MaxLength(20)]
+        public string Phone { get; set; } = null!;
 
-        public string Region { get; set; }     // اختيارية
-        public string Street { get; set; }
-        public string Building { get; set; }
+        // ===== بيانات الموقع =====
+        [Required]
+        [MaxLength(100)]
+        public string City { get; set; } = null!;
 
-        public string Notes { get; set; }      // وصف إضافي
+        [Required]
+        [MaxLength(100)]
+        public string Area { get; set; } = null!;   // مثال: زيونة، الكرادة
 
-        // ===========================
-        // إحداثيات GPS
-        // ===========================
+        [MaxLength(200)]
+        public string? Region { get; set; }         // حي/محلة/منطقة فرعية
+
+        [MaxLength(200)]
+        public string? Street { get; set; }
+
+        [MaxLength(200)]
+        public string? Building { get; set; }
+
+        [MaxLength(500)]
+        public string? Notes { get; set; }          // وصف إضافي لمكان السكن
+
+        // ===== إحداثيات GPS =====
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // ===========================
-        // علاقات DB
-        // ===========================
+        // ===== العلاقات =====
         [ForeignKey("UserId")]
-        public virtual User User { get; set; }
+        public virtual User User { get; set; } = null!;
 
-        // 👈 هذا الجزء الجديد الذي يحل المشكلة
-        [InverseProperty("DeliveryAddress")]
+        // كل الطلبات التي استخدمت هذا العنوان
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }

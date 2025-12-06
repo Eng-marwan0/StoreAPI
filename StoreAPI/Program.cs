@@ -31,6 +31,7 @@ builder.Services.AddScoped<IShippingService, ShippingService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IWishlistService, WishlistService>();
+builder.Services.AddScoped<IShippingCompanyService, ShippingCompanyService>();
 
 builder.Services.AddControllers();
 

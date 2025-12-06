@@ -7,7 +7,7 @@ using StoreAPI.Services.Interfaces;
 namespace StoreAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/cart")]
     [Authorize]
     public class CartController : ControllerBase
     {
@@ -18,59 +18,46 @@ namespace StoreAPI.Controllers
             _cartService = cartService;
         }
 
-        // Helper لقراءة id من الـ JWT
         private int GetUserId()
         {
-            var idClaim = User.FindFirst("id")?.Value;
-
-            if (string.IsNullOrEmpty(idClaim))
-                throw new Exception("التوكن لا يحتوي على معرف المستخدم.");
-
-            if (!int.TryParse(idClaim, out int userId))
-                throw new Exception("معرف المستخدم في التوكن غير صالح.");
-
-            return userId;
+            var claim = User.FindFirst("id")?.Value;
+            return int.Parse(claim);
         }
 
-        // GET: api/Cart
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<CartDTO>>> GetCart()
+        public async Task<IActionResult> GetCart()
         {
             int userId = GetUserId();
             var result = await _cartService.GetCartAsync(userId);
             return Ok(result);
         }
 
-        // POST: api/Cart/items
-        [HttpPost("items")]
-        public async Task<ActionResult<ApiResponse<CartDTO>>> AddItem([FromBody] AddToCartDTO dto)
+        [HttpPost("add")]
+        public async Task<IActionResult> Add(CartAddItemDTO dto)
         {
             int userId = GetUserId();
             var result = await _cartService.AddItemAsync(userId, dto);
             return Ok(result);
         }
 
-        // PUT: api/Cart/items/5
-        [HttpPut("items/{cartItemId}")]
-        public async Task<ActionResult<ApiResponse<CartDTO>>> UpdateItem(int cartItemId, [FromBody] UpdateCartItemDTO dto)
+        [HttpPut("update")]
+        public async Task<IActionResult> Update(CartUpdateItemDTO dto)
         {
             int userId = GetUserId();
-            var result = await _cartService.UpdateItemAsync(userId, cartItemId, dto);
+            var result = await _cartService.UpdateItemAsync(userId, dto);
             return Ok(result);
         }
 
-        // DELETE: api/Cart/items/5
-        [HttpDelete("items/{cartItemId}")]
-        public async Task<ActionResult<ApiResponse<bool>>> RemoveItem(int cartItemId)
+        [HttpDelete("remove/{cartItemId}")]
+        public async Task<IActionResult> Remove(int cartItemId)
         {
             int userId = GetUserId();
             var result = await _cartService.RemoveItemAsync(userId, cartItemId);
             return Ok(result);
         }
 
-        // DELETE: api/Cart
-        [HttpDelete]
-        public async Task<ActionResult<ApiResponse<bool>>> ClearCart()
+        [HttpDelete("clear")]
+        public async Task<IActionResult> Clear()
         {
             int userId = GetUserId();
             var result = await _cartService.ClearCartAsync(userId);

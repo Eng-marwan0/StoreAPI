@@ -2,28 +2,29 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
-namespace StoreAPI.Models;
-
-public partial class ShippingCompany
+namespace StoreAPI.Models
 {
-    [Key]
-    public int ShippingCompanyId { get; set; }
+    public class ShippingCompany
+    {
+        [Key]
+        public int ShippingCompanyId { get; set; }
 
-    [StringLength(200)]
-    public string Name { get; set; } = null!;
+        [Required]
+        [StringLength(150)]
+        public string Name { get; set; }
 
-    [StringLength(500)]
-    public string? ApiBaseUrl { get; set; }
+        // رقم التواصل
+        [StringLength(50)]
+        public string? ContactNumber { get; set; }
 
-    [StringLength(500)]
-    public string? ApiKey { get; set; }
+        // هل الشركة فعالة؟
+        public bool IsActive { get; set; } = true;
 
-    public bool IsActive { get; set; }
+        // تاريخ الإنشاء
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public DateTime CreatedAt { get; set; }
-
-    [InverseProperty("ShippingCompany")]
-    public virtual ICollection<Shipment> Shipments { get; set; } = new List<Shipment>();
+        // علاقة: الشركة لديها عدة شحنات
+        public virtual ICollection<Shipment> Shipments { get; set; } = new List<Shipment>();
+    }
 }

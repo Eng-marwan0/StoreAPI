@@ -2,39 +2,38 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
-namespace StoreAPI.Models;
-
-public partial class Shipment
+namespace StoreAPI.Models
 {
-    [Key]
-    public int ShipmentId { get; set; }
+    public class Shipment
+    {
+        [Key]
+        public int ShipmentId { get; set; }
 
-    public int OrderId { get; set; }
+        public int OrderId { get; set; }
 
-    public int ShippingCompanyId { get; set; }
+        public int ShippingCompanyId { get; set; }
 
-    [StringLength(200)]
-    public string? TrackingNumber { get; set; }
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal ShippingCost { get; set; } = 0;   // 👈 تمت إضافتها هنا
 
-    [StringLength(100)]
-    public string Status { get; set; } = null!;
+        [StringLength(100)]
+        public string? TrackingNumber { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+        [StringLength(50)]
+        public string Status { get; set; } = "Pending"; // Pending - Shipped - Delivered - Canceled
 
-    public DateTime? DeliveredAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    [ForeignKey("OrderId")]
-    [InverseProperty("Shipments")]
-    public virtual Order Order { get; set; } = null!;
+        public DateTime? DeliveredAt { get; set; }
 
-    [ForeignKey("ShippingCompanyId")]
-    [InverseProperty("Shipments")]
-    public virtual ShippingCompany ShippingCompany { get; set; } = null!;
+        // ===== العلاقات =====
+        [ForeignKey("OrderId")]
+        public virtual Order Order { get; set; }
 
-    public string? TrackingUrl { get; set; }
-    public string? ExternalId { get; set; } // رقم الشحنة داخل API
-    public decimal? ShippingCost { get; set; }
-    public DateTime UpdatedAt { get; set; }
+        [ForeignKey("ShippingCompanyId")]
+        public virtual ShippingCompany ShippingCompany { get; set; }
+
+        public virtual ICollection<ShipmentItem> Items { get; set; } = new List<ShipmentItem>();
+    }
 }

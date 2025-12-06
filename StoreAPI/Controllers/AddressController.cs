@@ -7,84 +7,53 @@ using StoreAPI.Services.Interfaces;
 namespace StoreAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    [Authorize]   // المستخدم العادي
-    public class AddressesController : ControllerBase
+    [Route("api/addresses")]
+    [Authorize]
+    public class AddressController : ControllerBase
     {
-        private readonly IAddressService _addressService;
+        private readonly IAddressService _service;
 
-        public AddressesController(IAddressService addressService)
+        public AddressController(IAddressService service)
         {
-            _addressService = addressService;
+            _service = service;
         }
 
-        // هيلبر لجلب userId من الـ JWT
-        private int GetUserId()
-        {
-            var idClaim = User.FindFirst("id")?.Value;
+        private int GetUserId() =>
+            int.Parse(User.FindFirst("id")!.Value);
 
-            if (string.IsNullOrEmpty(idClaim))
-                throw new Exception("التوكن لا يحتوي على معرف المستخدم.");
-
-            if (!int.TryParse(idClaim, out int userId))
-                throw new Exception("معرف المستخدم في التوكن غير صالح.");
-
-            return userId;
-        }
-
-        // ================================
-        // GET: api/Addresses
-        // ================================
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<List<AddressDTO>>>> GetMyAddresses()
+        public async Task<IActionResult> GetMyAddresses()
         {
             int userId = GetUserId();
-            var result = await _addressService.GetUserAddressesAsync(userId);
-            return Ok(result);
+            return Ok(await _service.GetUserAddressesAsync(userId));
         }
 
-        // ================================
-        // GET: api/Addresses/5
-        // ================================
-        [HttpGet("{addressId}")]
-        public async Task<ActionResult<ApiResponse<AddressDTO>>> GetById(int addressId)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
         {
             int userId = GetUserId();
-            var result = await _addressService.GetByIdAsync(userId, addressId);
-            return Ok(result);
+            return Ok(await _service.GetByIdAsync(userId, id));
         }
 
-        // ================================
-        // POST: api/Addresses
-        // ================================
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<AddressDTO>>> Create([FromBody] CreateAddressDTO dto)
+        public async Task<IActionResult> Create(CreateAddressDTO dto)
         {
             int userId = GetUserId();
-            var result = await _addressService.CreateAsync(userId, dto);
-            return Ok(result);
+            return Ok(await _service.CreateAsync(userId, dto));
         }
 
-        // ================================
-        // PUT: api/Addresses/5
-        // ================================
-        [HttpPut("{addressId}")]
-        public async Task<ActionResult<ApiResponse<AddressDTO>>> Update(int addressId, [FromBody] UpdateAddressDTO dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, UpdateAddressDTO dto)
         {
             int userId = GetUserId();
-            var result = await _addressService.UpdateAsync(userId, addressId, dto);
-            return Ok(result);
+            return Ok(await _service.UpdateAsync(userId, id, dto));
         }
 
-        // ================================
-        // DELETE: api/Addresses/5
-        // ================================
-        [HttpDelete("{addressId}")]
-        public async Task<ActionResult<ApiResponse<bool>>> Delete(int addressId)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
         {
             int userId = GetUserId();
-            var result = await _addressService.DeleteAsync(userId, addressId);
-            return Ok(result);
+            return Ok(await _service.DeleteAsync(userId, id));
         }
     }
 }
